@@ -1,9 +1,10 @@
+    // Copied from the BulletTime class example
+    // Modified by Victoria Morgan
 class Bullet extends Phaser.GameObjects.Sprite {
-    constructor(scene, x, y, texture, frame, shootSpeed) {        
+    constructor(scene, x, y, texture, frame) {        
         super(scene, x, y, texture, frame);
         this.visible = false;
         this.active = false;
-        this.speed = shootSpeed;
         return this;
     }
 

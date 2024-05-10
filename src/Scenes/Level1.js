@@ -9,7 +9,7 @@ class Level1 extends Phaser.Scene {
 
         this.playerAxis = 60;
 
-        this.shootCooldown = 2;
+        this.shootCooldown = 14;
         this.shootCooldownCounter = 0;
     }
 
@@ -17,8 +17,8 @@ class Level1 extends Phaser.Scene {
         this.load.setPath("./assets/");
         this.load.image("underground", "tilemap_packed.png"); // tile sheet
         this.load.tilemapTiledJSON("maze", "Maze.json"); // tilemap JSON
-        this.load.image("cursor", "pointer_a.png");
-        this.load.image("bullet", "navigation_n.png");
+        this.load.image("pizza", "tile_0106.png");
+        this.load.image("bullet", "tile_0105.png");
     }
 
     create() {
@@ -34,8 +34,8 @@ class Level1 extends Phaser.Scene {
         this.right = this.input.keyboard.addKey("D");
         this.space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-        my.sprite.player = new Player(this, game.config.width/2, game.config.height - this.playerAxis, "cursor", null, this.left, this.right, this.movementSpeed);
-        my.sprite.player.setScale(3.0);
+        my.sprite.player = new Player(this, game.config.width/2, game.config.height - this.playerAxis, "pizza", null, this.left, this.right, this.movementSpeed);
+        my.sprite.player.setScale(5.0);
 
         my.sprite.bullets = this.add.group({
             active: true,
@@ -50,6 +50,8 @@ class Level1 extends Phaser.Scene {
             key: my.sprite.bullets.defaultKey,
             repeat: my.sprite.bullets.maxSize - 1
         });
+        my.sprite.bullets.propertyValueSet("speed", this.friendBulletSpeed);
+        my.sprite.bullets.scaleXY(1.5, 1.5);
     }
 
     update() {
@@ -62,7 +64,7 @@ class Level1 extends Phaser.Scene {
                 this.shootCooldownCounter = this.shootCooldown;
                 bullet.makeActive();
                 bullet.x = my.sprite.player.x;
-                bullet.y = my.sprite.player.y - 30;
+                bullet.y = my.sprite.player.y - 40;
             }
         }
 
