@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="17" height="10" tilewidth="16" tileheight="16" infinite="0" nextlayerid="2" nextobjectid="1">
+ <editorsettings>
+  <export target="Maze.json" format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" name="tiny-dungeon-packed" tilewidth="16" tileheight="16" tilecount="132" columns="12">
+  <image source="tilemap_packed.png" width="192" height="176"/>
+ </tileset>
+ <layer id="1" name="Ground-n-tunnel" width="17" height="10">
+  <data encoding="csv">
+13,13,25,1,1,1,13,1,25,1,13,13,1,13,25,1,1,
+25,25,13,1,25,25,1,25,1,1,25,13,13,1,13,1,13,
+3,3,3,3,3,4,25,25,13,25,1,13,25,2,3,3,3,
+50,43,50,43,50,17,3,3,3,3,3,3,4,14,50,43,49,
+27,27,27,6,43,50,43,50,43,50,43,50,16,14,43,5,27,
+1,25,25,14,50,5,27,6,50,5,6,43,16,14,50,16,1,
+3,3,3,18,43,16,25,14,43,16,14,50,17,18,43,16,1,
+50,43,50,43,50,16,13,14,50,16,14,43,50,43,50,16,25,
+27,27,27,27,27,28,1,14,43,16,26,27,27,27,27,28,25,
+25,13,13,13,1,13,13,14,50,16,1,1,25,13,13,13,1
+</data>
+ </layer>
+</map>
