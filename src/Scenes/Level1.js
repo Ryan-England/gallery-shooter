@@ -7,7 +7,7 @@ class Level1 extends Phaser.Scene {
         this.movementSpeed = 3;
         this.friendBulletSpeed = 6;
 
-        this.enemyShiftSpeed = 40;
+        this.enemyShiftSpeed = 70;
         this.enemyShiftDistance = -30;
         this.enemyShiftCounter = this.enemyShiftSpeed;
 
@@ -34,17 +34,33 @@ class Level1 extends Phaser.Scene {
             600, 90
         ]
 
-        this.rightPath = [
-            170, 8,
-            170, 280,
-            490, 485,
-            810, 410,
-            675, 275,
-            585, 410,
-            930, 500,
-            1500, 0,
-            500, -60
-        ]
+        // this.rightPath = [
+        //     170, 8,
+        //     170, 280,
+        //     490, 485,
+        //     810, 410,
+        //     675, 275,
+        //     585, 410,
+        //     930, 500,
+        //     1500, 0,
+        //     500, -60
+        // ]
+
+        // this.leftPath = [
+        //     878, 30,
+        //     850, 215,
+        //     730, 460,
+        //     220, 450,
+        //     130, 330,
+        //     300, 260,
+        //     400, 350,
+        //     180, 515,
+        //     30, 425,
+        //     -1500, 0,
+        //     500, -60
+        //     ]
+
+        //     this.bPath = true;
     }
 
     preload() {
@@ -102,16 +118,21 @@ class Level1 extends Phaser.Scene {
         })
 
         my.sprite.enemies.createMultiple({
+            //classType: Phaser.GameObjects.PathFollower,
             key: "redTile",
+            path: this.leftFirst,
+            x: game.config.width / 2,
             repeat: 3
         });
 
         my.sprite.enemies.createMultiple({
+            //classType: Phaser.GameObjects.PathFollower,
             key: "yellowTile",
             repeat: 2
         })
 
         my.sprite.enemies.createMultiple({
+            //classType: Phaser.GameObjects.PathFollower,
             key: "greenTile",
             repeat: 1
         })
@@ -120,6 +141,7 @@ class Level1 extends Phaser.Scene {
         for (let enemy of my.sprite.enemies.getChildren()) {
             enemy.x = game.config.width / 2;
             enemy.y = -60;
+            enemy.shooting = false;
             if (i < 4) {
                 enemy.health = 1;
             } else if (i < 7) {
@@ -129,6 +151,14 @@ class Level1 extends Phaser.Scene {
             }
             i++;
         }
+
+        // this.leftFirst = new Phaser.Curves.Spline(this.leftPath);
+        // this.leftSecond = new Phaser.Curves.Spline(this.leftPath);
+        // this.leftThird = new Phaser.Curves.Spline(this.leftPath);
+
+        // this.rightFirst = new Phaser.Curves.Spline(this.rightPath);
+        // this.rightSecond = new Phaser.Curves.Spline(this.rightPath);
+        // this.rightThird = new Phaser.Curves.Spline(this.rightPath);
     }
 
     update() {
@@ -142,11 +172,55 @@ class Level1 extends Phaser.Scene {
             this.enemyShiftDistance = -this.enemyShiftDistance;
         }
 
-        // if (this.enemyAttackCounter < 0) {
-        //     waveFirst = my.sprite.enemies.getFirstNth(0, true);
-        //     waveSecond = my.sprite.enemies.getFirstNth(1, true);
-        //     waveThird = my.sprite.enemies.getFirstNth(2, true);
-        // }
+        if (this.enemyAttackCounter < 0) {
+            let i = 1;
+            for (let enemy of my.sprite.enemies.getChildren()) {
+                // if (!enemy.shooting) {
+                //     enemy.shooting = false;
+                //     enemy.stopFollow();
+                // } else {
+                //     enemy.shooting = true;
+                //     if (bPath && i == 1) {
+                //         this.leftFirst.points[0].x = enemy.x;
+                //         this.leftFirst.points[0].y = enemy.y;
+                //         i++;
+                //     } else if (bPath && i == 2) {
+                //         this.leftSecond.points[0].x = enemy.x;
+                //         this.leftSecond.points[0].y = enemy.y;
+                //         i++;
+                //     } else if (bPath && i == 3) {
+                //         this.leftThird.points[0].x = enemy.x;
+                //         this.leftThird.points[0].y = enemy.y;
+                //         i++;
+                //     } else if (!bPath && i == 1) {
+                //         this.rightFirst.points[0].x = enemy.x;
+                //         this.rightFirst.points[0].y = enemy.y;
+                //         i++;
+                //     } else if (!bPath && i == 2) {
+                //         this.rightSecond.points[0].x = enemy.x;
+                //         this.rightSecond.points[0].y = enemy.y;
+                //         i++;
+                //     } else if (!bPath && i == 3) {
+                //         this.rightThird.points[0].x = enemy.x;
+                //         this.rightThird.points[0].y = enemy.y;
+                //         i++;
+                //     }
+                //     if (i <= 3) {
+                //         enemy.startFollow({
+                //             from: 0,
+                //             to: 1,
+                //             delay: 0,
+                //             duration: 600 * this.curve.points.length,
+                //             ease: 'Sine.easeInOut',
+                //             repeat: 0,
+                //              yoyo: false,
+                //             rotateToPath: true,
+                //             rotationOffset: -90
+                //         });
+                //     }
+                // }
+            }
+        }
 
         if (this.space.isDown && this.shootCooldownCounter < 0) {
             let bullet = my.sprite.bullets.getFirstDead();
@@ -160,7 +234,7 @@ class Level1 extends Phaser.Scene {
 
         let i = 0;
         for (let enemy of my.sprite.enemies.getChildren()) {
-            if (enemy.active) {
+            if (enemy.active && !enemy.shooting) {
                 if (enemy.x < this.enemyPositions[i] + this.enemyShiftDistance) {
                     enemy.x++;
                 } else if (enemy.x > this.enemyPositions[i] + this.enemyShiftDistance) {
