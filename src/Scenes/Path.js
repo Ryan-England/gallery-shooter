@@ -171,7 +171,7 @@ class Path extends Phaser.Scene {
                             delay: 0,
                             duration: 600 * this.curve.points.length,
                             ease: 'Sine.easeInOut',
-                            repeat: -1,
+                            repeat: 0,
                              yoyo: false,
                             rotateToPath: true,
                             rotationOffset: -90

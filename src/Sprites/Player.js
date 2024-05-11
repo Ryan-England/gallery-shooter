@@ -25,7 +25,7 @@ class Player extends Phaser.GameObjects.Sprite {
             if (this.x > (this.displayWidth/2)) {
                 this.x -= this.playerSpeed;
             }
-            console.log("Pressing Left");
+            //console.log("Pressing Left");
         }
 
         // Moving right
@@ -34,7 +34,7 @@ class Player extends Phaser.GameObjects.Sprite {
             if (this.x < (game.config.width - (this.displayWidth/2))) {
                 this.x += this.playerSpeed;
             }
-            console.log("Pressing Right");
+            //console.log("Pressing Right");
         }
     }
 
