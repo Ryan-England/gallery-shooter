@@ -2,7 +2,8 @@ class Level1 extends Phaser.Scene {
     constructor() {
         super("Level1");
         this.my = {sprite:{}};
-        
+
+        this.random = Phaser.Math.RND;
 
         this.movementSpeed = 3;
         this.friendBulletSpeed = 6;
@@ -11,10 +12,13 @@ class Level1 extends Phaser.Scene {
         this.enemyShiftDistance = -30;
         this.enemyShiftCounter = this.enemyShiftSpeed;
 
-        this.enemyAttack = 160
+        this.enemyAttack = 40;
         this.enemyAttackCounter = this.enemyAttack;
+        this.enemyBulletSpeed = 4;
 
         this.playerAxis = 60;
+        this.playerDead = false;
+        this.gameWon = false;
 
         this.shootCooldown = 40;
         this.shootCooldownCounter = 0;
@@ -77,6 +81,8 @@ class Level1 extends Phaser.Scene {
         this.load.image("redEnemBullet", "emote_anger.png");
         this.load.image("yellowEnemBullet", "emote_bars.png");
         this.load.image("greenEnemBullet", "emote_swirl.png");
+        this.load.image("congrats", "congratulations.png");
+        this.load.image("ded", "You_DIED.png");
     }
 
     create() {
@@ -94,6 +100,10 @@ class Level1 extends Phaser.Scene {
 
         my.sprite.player = new Player(this, game.config.width/2, game.config.height - this.playerAxis, "pizza", null, this.left, this.right, this.movementSpeed);
         my.sprite.player.setScale(5.0);
+
+        my.sprite.endScreen = this.add.sprite(500, -400, "congrats");
+        my.sprite.deathScreen = this.add.sprite(500, -100, "ded");
+        my.sprite.deathScreen.setScale(2.0)
 
         my.sprite.bullets = this.add.group({
             active: true,
@@ -120,7 +130,7 @@ class Level1 extends Phaser.Scene {
         my.sprite.enemies.createMultiple({
             //classType: Phaser.GameObjects.PathFollower,
             key: "redTile",
-            path: this.leftFirst,
+            // path: this.leftFirst,
             x: game.config.width / 2,
             repeat: 3
         });
@@ -152,6 +162,24 @@ class Level1 extends Phaser.Scene {
             i++;
         }
 
+        my.sprite.enemyBullets = this.add.group({
+            active: false,
+            defaultKey: "redEnemBullet",
+            maxSize: 5
+        })
+
+        my.sprite.enemyBullets.createMultiple({
+            key: my.sprite.enemyBullets.defaultKey,
+            repeat: my.sprite.enemyBullets.maxSize - 1
+        });
+        my.sprite.enemyBullets.setXY(500, 50);
+        my.sprite.enemyBullets.scaleXY(2.0, 2.0);
+
+        for (let bullet of my.sprite.enemyBullets.getChildren()) {
+            bullet.active = false;
+            bullet.visible = false;
+        }
+
         // this.leftFirst = new Phaser.Curves.Spline(this.leftPath);
         // this.leftSecond = new Phaser.Curves.Spline(this.leftPath);
         // this.leftThird = new Phaser.Curves.Spline(this.leftPath);
@@ -167,14 +195,39 @@ class Level1 extends Phaser.Scene {
         this.enemyShiftCounter--;
         this.enemyAttackCounter--;
 
+        my.sprite.player.update();
+
         if (this.enemyShiftCounter < 0) {
             this.enemyShiftCounter = this.enemyShiftSpeed;
             this.enemyShiftDistance = -this.enemyShiftDistance;
         }
 
         if (this.enemyAttackCounter < 0) {
-            let i = 1;
-            for (let enemy of my.sprite.enemies.getChildren()) {
+            // console.log("trying to shoot");
+            this.enemyAttackCounter = this.enemyAttack;
+            let nth = this.random.integerInRange(0, 9);
+            // console.log(nth);
+            let enemy = my.sprite.enemies.getFirstNth(nth, true);
+            let bullet = my.sprite.enemyBullets.getFirstDead();
+            if (bullet != null && enemy != null) {
+                // console.log("shooting bullet");
+                bullet.x = enemy.x;
+                bullet.y = enemy.y + 40;
+                // console.log("bullet.x", bullet.x);
+                // console.log("bullet.y", bullet.y);
+                bullet.visible = true;
+                bullet.active = true;
+                // if (enemy.health == 3) {
+                //     bullet.setTexture("greenEnimBullet");
+                // } else if (enemy.health == 2) {
+                //     bullet.setTexture("yellowEnimBullet");
+                // } else {
+                //     bullet.setTexture("redEnimBullet");
+                // }
+            }
+
+            // let i = 1;
+            // for (let enemy of my.sprite.enemies.getChildren()) {
                 // if (!enemy.shooting) {
                 //     enemy.shooting = false;
                 //     enemy.stopFollow();
@@ -219,16 +272,30 @@ class Level1 extends Phaser.Scene {
                 //         });
                 //     }
                 // }
+            // }
+        }
+
+        for (let bullet of my.sprite.enemyBullets.getChildren()) {
+            if (bullet.active == true) {
+                bullet.y += this.enemyBulletSpeed;
+                if (bullet.y >= game.config.height) {
+                    bullet.active = false;
+                    bullet.visible = false;
+                    //console.log("Bullet offscreen");
+                }
             }
         }
 
         if (this.space.isDown && this.shootCooldownCounter < 0) {
             let bullet = my.sprite.bullets.getFirstDead();
-            if (bullet != null) {
+            if (bullet != null && !this.playerDead) {
                 this.shootCooldownCounter = this.shootCooldown;
                 bullet.makeActive();
                 bullet.x = my.sprite.player.x;
                 bullet.y = my.sprite.player.y - 40;
+            }
+            if (this.playerDead || this.gameWon) {
+                this.reset();
             }
         }
 
@@ -271,8 +338,66 @@ class Level1 extends Phaser.Scene {
                 }
             }
         }
+        for (let bullet of my.sprite.enemyBullets.getChildren()) {
+            if (bullet.active && !this.playerDead) {
+                if (Phaser.Math.Distance.Between(bullet.x, bullet.y, my.sprite.player.x, my.sprite.player.y) < (my.sprite.player.width + bullet.width) / 2) {
+                    this.playerDead = true;
+                    my.sprite.player.visible = false;
+                }
+            }
+        }
 
-        my.sprite.player.update();
+        if (my.sprite.enemies.countActive() == 0 && my.sprite.endScreen.y < 400) {
+            my.sprite.endScreen.y += 3;
+            this.gameWon = true;
+        } else if (my.sprite.endScreen > -400) {
+            my.sprite.endScreen.y -= 7;
+            console.log("Scroll up endscreen");
+        }
 
+        if (this.playerDead && my.sprite.deathScreen.y < 500) {
+            my.sprite.deathScreen.y += 3;
+        } else if (my.sprite.deathScreen > -100) {
+            my.sprite.deathScreen.y -= 7;
+            console.log("Scroll up deathscreen");
+        }
+    }
+
+    reset() {
+        let my = this.my;
+
+        my.sprite.player.x = game.config.width/2;
+        my.sprite.player.visible = true;
+        this.playerDead = false;
+        this.gameWon = false;
+        this.shootCooldownCounter = this.shootCooldown;
+        this.enemyAttackCounter = this.enemyAttack;
+        for (let bullet of my.sprite.bullets.getChildren()) {
+            bullet.makeInactive();
+        }
+        let i = 0;
+        for (let enemy of my.sprite.enemies.getChildren()) {
+            enemy.visible = true;
+            enemy.active = true;
+            enemy.x = 500;
+            enemy.y = -200;
+            if (i < 4) {
+                enemy.health = 1;
+                enemy.setTexture("redTile");
+            } else if (i < 7) {
+                enemy.health = 2;
+                enemy.setTexture("yellowTile");
+            } else {
+                enemy.health = 3;
+                enemy.setTexture("greenTile");
+            }
+            i++;
+        }
+        for (let bullet of my.sprite.enemyBullets.getChildren()) {
+            bullet.active = false;
+            bullet.visible = false;
+        }
+        my.sprite.deathScreen.y = -100;
+        my.sprite.endScreen.y = -400;
     }
 }
