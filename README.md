@@ -2,6 +2,8 @@
 A class assignment for CMPM 120
 Made by Victoria Morgan
 
+Scope had to be significantly curtailed to make the deadline in five minutes as of this last update. Thank you for grading this assignment, and I hope you are generous with partial credit.
+
 Player.js and Bullet.js shamelessly copied from the class
 assignment BulletTime
 
